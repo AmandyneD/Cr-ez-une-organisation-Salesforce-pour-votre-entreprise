@@ -1,5 +1,5 @@
 <template>
-    <lightning-card title="Produits de l'opportunité">
+    <lightning-card title={label.opportunityProductsTitle}>
 
         <!-- Loader -->
         <template if:true={isLoading}>
@@ -22,13 +22,13 @@
         <template if:true={showEmptyMessage}>
             <div class="slds-box slds-theme_default slds-p-around_medium">
                 <p class="slds-text-heading_small">
-                    Vous n’avez aucun produit pour le moment.
+                    {label.noProductsLine1}
                 </p>
                 <p class="slds-m-top_x-small slds-text-color_weak">
-                    Aucun produit n’est présent pour le moment.
+                    {label.noProductsLine2}
                 </p>
                 <p class="slds-m-top_x-small slds-text-color_weak">
-                    Version anglaise : “No product available on the opportunity”.
+                    {label.noProductsLine3}
                 </p>
             </div>
         </template>
@@ -40,12 +40,10 @@
             <template if:true={showStockError}>
                 <div class="slds-box slds-theme_warning slds-m-bottom_small">
                     <p class="slds-text-body_regular">
-                        Vous avez au moins une ligne avec un problème de quantité.
-                        Veuillez supprimer cette ligne ou réduire la quantité.
+                        {label.stockWarningLine1}
                     </p>
                     <p class="slds-text-body_small slds-m-top_xx-small">
-                        Si vous avez absolument besoin de plus de produits, 
-                        veuillez contacter votre administrateur système.
+                        {label.stockWarningLine2}
                     </p>
                 </div>
             </template>

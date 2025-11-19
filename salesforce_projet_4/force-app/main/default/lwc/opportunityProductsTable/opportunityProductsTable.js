@@ -5,6 +5,21 @@ import getOpportunityProducts from '@salesforce/apex/OpportunityProductsService.
 import deleteOpportunityLine from '@salesforce/apex/OpportunityProductsService.deleteOpportunityLine';
 import getCurrentProfileInfo from '@salesforce/apex/UserProfileService.getCurrentProfileInfo';
 
+// ====== CUSTOM LABELS ======
+import LBL_OpportunityProducts from '@salesforce/label/c.LBL_OpportunityProducts';
+import LBL_ProductName         from '@salesforce/label/c.LBL_ProductName';
+import LBL_Quantity            from '@salesforce/label/c.LBL_Quantity';
+import LBL_UnitPrice           from '@salesforce/label/c.LBL_UnitPrice';
+import LBL_TotalPrice          from '@salesforce/label/c.LBL_TotalPrice';
+import LBL_QuantityInStock     from '@salesforce/label/c.LBL_QuantityInStock';
+import LBL_Delete              from '@salesforce/label/c.LBL_Delete';
+import LBL_ViewProduct         from '@salesforce/label/c.LBL_ViewProduct';
+import LBL_StockWarning_Line1  from '@salesforce/label/c.LBL_StockWarning_Line1';
+import LBL_StockWarning_Line2  from '@salesforce/label/c.LBL_StockWarning_Line2';
+import LBL_NoProducts_Line1    from '@salesforce/label/c.LBL_NoProductsMessage_Line1';
+import LBL_NoProducts_Line2    from '@salesforce/label/c.LBL_NoProductsMessage_Line2';
+import LBL_NoProducts_Line3    from '@salesforce/label/c.LBL_NoProductsMessage_Line3';
+
 export default class OpportunityProductsTable extends NavigationMixin(LightningElement) {
     @api recordId; // Id de l’Opportunity
 
@@ -17,6 +32,23 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
     isCommercial = false;
 
     columns = [];
+
+    // Expose les labels au template HTML
+    label = {
+        opportunityProductsTitle: LBL_OpportunityProducts,
+        productName:              LBL_ProductName,
+        quantity:                 LBL_Quantity,
+        unitPrice:                LBL_UnitPrice,
+        totalPrice:               LBL_TotalPrice,
+        quantityInStock:          LBL_QuantityInStock,
+        delete:                   LBL_Delete,
+        viewProduct:              LBL_ViewProduct,
+        stockWarningLine1:        LBL_StockWarning_Line1,
+        stockWarningLine2:        LBL_StockWarning_Line2,
+        noProductsLine1:          LBL_NoProducts_Line1,
+        noProductsLine2:          LBL_NoProducts_Line2,
+        noProductsLine3:          LBL_NoProducts_Line3
+    };
 
     // ======================= LIFE CYCLE =======================
 
@@ -49,34 +81,34 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
     buildColumns() {
         const baseColumns = [
             {
-                label: 'Produit',
+                label: this.label.productName,
                 fieldName: 'productName',
                 type: 'text'
             },
             {
-                label: 'Quantité',
+                label: this.label.quantity,
                 fieldName: 'quantity',
                 type: 'number',
                 cellAttributes: { class: { fieldName: 'qtyCssClass' } }
             },
             {
-                label: 'Prix unitaire',
+                label: this.label.unitPrice,
                 fieldName: 'unitPrice',
                 type: 'currency'
             },
             {
-                label: 'Prix total',
+                label: this.label.totalPrice,
                 fieldName: 'totalPrice',
                 type: 'currency'
             },
             {
-                label: 'Stock restant',
+                label: this.label.quantityInStock, // "Stock restant" calculé
                 fieldName: 'remainingStock',
                 type: 'number',
                 cellAttributes: { class: { fieldName: 'remainingCssClass' } }
             },
             {
-                label: 'Stock initial',
+                label: this.label.quantityInStock, // "Stock initial"
                 fieldName: 'quantityInStock',
                 type: 'number'
             }
@@ -88,20 +120,20 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
             typeAttributes: {
                 iconName: 'utility:delete',
                 name: 'delete',
-                title: 'Supprimer',
+                title: this.label.delete,
                 variant: 'border-filled',
-                alternativeText: 'Supprimer'
+                alternativeText: this.label.delete
             }
         };
 
         const viewColumn = {
-            label: 'Voir produit',
+            label: this.label.viewProduct,
             type: 'button',
             initialWidth: 120,
             typeAttributes: {
-                label: 'Voir produit',
+                label: this.label.viewProduct,
                 name: 'view',
-                title: 'Voir la fiche produit',
+                title: this.label.viewProduct,
                 variant: 'base'
             }
         };
@@ -131,9 +163,6 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
 
             let hasNegative = false;
 
-            // Texte rouge + gras via SLDS (fonctionne dans lightning-datatable)
-            const negativeClasses = 'slds-text-color_error slds-text-title_bold';
-
             this.products = data.map((row) => {
                 const quantity = row.quantity || 0;
                 const quantityInStock = row.quantityInStock || 0;
@@ -147,10 +176,8 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
                 return {
                     ...row,
                     remainingStock: remaining,
-                    // cellule "Stock restant"
-                    remainingCssClass: isNegative ? negativeClasses : '',
-                    // cellule "Quantité"
-                    qtyCssClass: isNegative ? negativeClasses : ''
+                    remainingCssClass: isNegative ? 'stock-negative' : '',
+                    qtyCssClass:       isNegative ? 'qty-negative'   : ''
                 };
             });
 

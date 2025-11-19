@@ -78,9 +78,8 @@ public with sharing class OpportunityStockHandler {
         }
 
         if (hasStockError) {
-            String msg =
-                'Votre opportunité ne peut pas être mise à jour ' +
-                'car vous avez un souci de quantité sur vos lignes.';
+            // 🔹 Message internationalisé via Custom Label
+            String msg = Label.LBL_StockErrorTrigger;
 
             for (Opportunity opp : newList) {
                 if (oppIdsToCheck.contains(opp.Id)) {
