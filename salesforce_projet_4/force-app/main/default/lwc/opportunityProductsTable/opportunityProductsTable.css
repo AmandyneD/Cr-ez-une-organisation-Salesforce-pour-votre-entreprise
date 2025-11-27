@@ -4,3 +4,13 @@
     border: 1px dashed #d8dde6;
     padding: 1rem;
 }
+
+.stock-negative {
+    color: red;
+    font-weight: bold;
+}
+
+.qty-negative {
+    color: red;
+    font-weight: bold;
+}

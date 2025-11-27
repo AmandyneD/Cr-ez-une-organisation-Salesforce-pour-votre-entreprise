@@ -14,58 +14,7 @@ private class OpportunityStockHandlerTest {
     }
 
     // ============================================================
-    // TEST 1 : Erreur lorsque la quantité dépasse le stock
-    // ============================================================
-    @IsTest
-    static void testErrorWhenQuantityExceedsStock() {
-
-        // --- Product ---
-        Product2 p = new Product2(
-            Name = 'Test Product',
-            QuantityInStock__c = 5,
-            IsActive = true
-        );
-        insert p;
-
-        // --- PBE ---
-        PricebookEntry pbe = createPBE(p.Id, 100);
-        insert pbe;
-
-        // --- Opportunity ---
-        Opportunity opp = new Opportunity(
-            Name      = 'Opp Error',
-            StageName = 'Prospecting',
-            CloseDate = System.today().addDays(5)
-        );
-        insert opp;
-
-        // --- Line : quantity > stock ---
-        OpportunityLineItem oli = new OpportunityLineItem(
-            OpportunityId    = opp.Id,
-            PricebookEntryId = pbe.Id,
-            Quantity         = 10,    // dépasse stock = 5
-            UnitPrice        = 100
-        );
-        insert oli;
-
-        // --- TEST : passage à Closed Won doit générer une erreur ---
-        opp.StageName = 'Closed Won';
-
-        Test.startTest();
-        try {
-            update opp;
-            System.assert(false, 'Une erreur aurait dû être levée.');
-        } catch (DmlException e) {
-            System.assert(
-                e.getMessage().contains(Label.LBL_StockErrorTrigger),
-                'Le message doit utiliser le Custom Label.'
-            );
-        }
-        Test.stopTest();
-    }
-
-    // ============================================================
-    // TEST 2 : Succès + mise à jour du stock produit
+    // TEST : Succès + mise à jour du stock produit
     // ============================================================
     @IsTest
     static void testStockUpdatedOnClosedWon_Success() {

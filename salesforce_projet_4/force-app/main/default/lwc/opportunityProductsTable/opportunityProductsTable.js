@@ -20,7 +20,9 @@ import LBL_NoProducts_Line1    from '@salesforce/label/c.LBL_NoProductsMessage_L
 import LBL_NoProducts_Line2    from '@salesforce/label/c.LBL_NoProductsMessage_Line2';
 import LBL_NoProducts_Line3    from '@salesforce/label/c.LBL_NoProductsMessage_Line3';
 
-export default class OpportunityProductsTable extends NavigationMixin(LightningElement) {
+export default class OpportunityProductsTable extends NavigationMixin(
+    LightningElement
+) {
     @api recordId; // Id de l’Opportunity
 
     @track products = [];
@@ -89,6 +91,7 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
                 label: this.label.quantity,
                 fieldName: 'quantity',
                 type: 'number',
+                // rouge + gras si quantité liée à un stock négatif
                 cellAttributes: { class: { fieldName: 'qtyCssClass' } }
             },
             {
@@ -102,15 +105,12 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
                 type: 'currency'
             },
             {
-                label: this.label.quantityInStock, // "Stock restant" calculé
+                // Stock restant calculé dans loadProducts()
+                label: this.label.quantityInStock,
                 fieldName: 'remainingStock',
                 type: 'number',
+                // rouge + gras si remainingStock < 0
                 cellAttributes: { class: { fieldName: 'remainingCssClass' } }
-            },
-            {
-                label: this.label.quantityInStock, // "Stock initial"
-                fieldName: 'quantityInStock',
-                type: 'number'
             }
         ];
 
@@ -143,7 +143,7 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
             return [viewColumn, ...baseColumns, deleteColumn];
         }
 
-        // Commercial : seulement Supprimer
+        // Commercial : colonnes + Supprimer
         return [...baseColumns, deleteColumn];
     }
 
@@ -151,7 +151,9 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
 
     async loadProducts() {
         try {
-            const data = await getOpportunityProducts({ opportunityId: this.recordId });
+            const data = await getOpportunityProducts({
+                opportunityId: this.recordId
+            });
 
             this.error = undefined;
             this.showStockError = false;
@@ -173,11 +175,16 @@ export default class OpportunityProductsTable extends NavigationMixin(LightningE
                     hasNegative = true;
                 }
 
+                // ⚠️ Utilisation des classes SLDS reconnues par lightning-datatable
+                const negativeClass = isNegative
+                    ? 'slds-text-color_error slds-text-title_bold'
+                    : '';
+
                 return {
                     ...row,
                     remainingStock: remaining,
-                    remainingCssClass: isNegative ? 'stock-negative' : '',
-                    qtyCssClass:       isNegative ? 'qty-negative'   : ''
+                    remainingCssClass: negativeClass,
+                    qtyCssClass: negativeClass
                 };
             });
 
